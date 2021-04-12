@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">RickMortyApplication</string>
+
+    <string name="feed_error">There was a problem getting the request.</string>
+    <string name="feed_dialog_message">Location is: %s</string>
+
+
+    <string name="close">Close</string>
+</resources>
