@@ -5,6 +5,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.feiyatsu.networking.model.Character
 import com.feiyatsu.rickmortyapplication.R
 
@@ -34,6 +35,7 @@ class CharacterViewHolder(private val view: View) : RecyclerView.ViewHolder(view
             Glide.with(itemView)
                 .load(character.image)
                 .centerCrop()
+                .diskCacheStrategy(DiskCacheStrategy.DATA)
                 .error(R.drawable.ic_empty)
                 .fallback(R.drawable.ic_empty)
                 .into(image)

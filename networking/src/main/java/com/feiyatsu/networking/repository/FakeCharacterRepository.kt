@@ -1,4 +1,4 @@
-package com.feiyatsu.rickmortyapplication.repo
+package com.feiyatsu.networking.repository
 
 import com.feiyatsu.networking.data.NetworkResource
 import com.feiyatsu.networking.model.BaseInfo

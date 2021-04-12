@@ -13,13 +13,16 @@ class CharactersRepository(
 ) : CharactersRepositoryContract {
 
     private var currentPage: Int = 1
+    private var isLoadingPossible = true
+    private val characterCache: MutableList<Character> = mutableListOf()
 
     override suspend fun getCharacters(): NetworkResource<List<Character>> {
+        if (!isLoadingPossible) NetworkResource.Error<List<Character>>(Exception("Reached the end of the list"))
         return withContext(Dispatchers.IO) {
             try {
                 val response = charactersApi.getCharacters(currentPage)
                 handleCharacterResponse(response)
-                NetworkResource.Success(response.characters)
+                NetworkResource.Success(characterCache)
             } catch (e: Throwable) {
                 e.printStackTrace()
                 NetworkResource.Error(e)
@@ -28,8 +31,13 @@ class CharactersRepository(
     }
 
     private fun handleCharacterResponse(response: CharacterResponse) {
-        if (response.characters.isNotEmpty()) {
+        characterCache.addAll(response.characters)
+        if (response.characterInfo.nextUrl.isNullOrBlank()
+                .not() && response.characters.isNotEmpty()
+        ) {
             currentPage += 1
+        } else {
+            isLoadingPossible = false
         }
     }
 }

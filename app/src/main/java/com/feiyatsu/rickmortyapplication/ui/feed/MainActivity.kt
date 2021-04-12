@@ -1,13 +1,13 @@
 package com.feiyatsu.rickmortyapplication.ui.feed
 
-import android.annotation.SuppressLint
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.feiyatsu.networking.data.NetworkResource
 import com.feiyatsu.networking.model.Character
 import com.feiyatsu.rickmortyapplication.R
@@ -28,22 +28,36 @@ class MainActivity : AppCompatActivity(), CharacterListener {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        binding.feedRecyclerView.layoutManager = LinearLayoutManager(this)
-        binding.feedRecyclerView.adapter = characterAdapter
+        setRecyclerView()
         feedViewModel.fetchCharacters()
         observeViewModel()
     }
 
+    private fun setRecyclerView() {
+        binding.feedRecyclerView.layoutManager = LinearLayoutManager(this)
+        binding.feedRecyclerView.adapter = characterAdapter
+        binding.feedRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+
+                if (recyclerView.canScrollVertically(1).not() && newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    feedViewModel.fetchCharacters()
+                }
+            }
+        })
+
+    }
+
     private fun observeViewModel() {
         feedViewModel.characters.observe(this, Observer {
-            when(it) {
+            when (it) {
                 is NetworkResource.Success -> {
                     binding.feedProgressBar.visibility = View.GONE
                     characterAdapter.addNewCharacters(it.data)
                 }
                 is NetworkResource.Error -> {
                     binding.feedProgressBar.visibility = View.GONE
-                    Toast.makeText(this, R.string.feed_error, Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, it.error.message, Toast.LENGTH_LONG).show()
                 }
                 is NetworkResource.Loading -> {
                     binding.feedProgressBar.visibility = View.VISIBLE
